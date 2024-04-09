@@ -35,6 +35,7 @@ spec:
       app: pgvector
   template:
     metadata:
+      name: pgvector
       labels:
         app: pgvector
     spec:
@@ -47,6 +48,9 @@ spec:
         - name: pgvector
           image: pgvector/pgvector:pg16
           imagePullPolicy: IfNotPresent
+          startupProbe:
+            exec:
+              command: [ "/bin/sh", "-c", "pg_isready && PGPASSWORD=${POSTGRES_PASSWORD} /bin/psql -h localhost -U ${POSTGRES_USER} -d ${POSTGRES_DB} -p 5432 -c 'CREATE EXTENSION IF NOT EXISTS vector;' > /usr/share/postStart.log" ]
           readinessProbe:
             exec:
               command: [ "pg_isready" ]
@@ -62,5 +66,3 @@ spec:
           volumeMounts:
             - name: pgvector-pv
               mountPath: "/var/lib/mms_app/pgvector"
-
-
